@@ -1,6 +1,7 @@
 
 library(sp)
 library(gstat)
+library(ggplot2)
 
 ##Carga y exploración de datos
 ?meuse
@@ -14,8 +15,14 @@ coordinates(meuse)<-c("x","y")
 class(meuse)
 str(meuse)
 
-#mapeo de datos
-plot(meuse,asp=1,pch=1)
+# mapeo de datos, primero sólo los puntos
+ggplot(data=mapdata,aes(x, y)) + geom_point(color="blue", alpha=3/4)  
+    +  coord_equal() + theme_bw()
+
+# Luego los puntos pero variando el tamaño de acuerdo a la cantidad de Zinc
+ggplot(data=mapdata,aes(x, y)) + geom_point(aes(size=4*zinc/max(zinc)), color="blue", alpha=3/4) +
+   ggtitle("Zinc Concentration (ppm)") + coord_equal() + theme_bw()
+
 data("meuse.riv")
 lines(meuse.riv)
 plot(meuse,asp=1,cex=4*meuse$zinc / max(meuse$zinc), pch=1)

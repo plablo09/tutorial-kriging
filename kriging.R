@@ -61,24 +61,35 @@ ggplot(data = exp.variogram, mapping = aes(x=dist,y=gamma)) +
     geom_point() +
     geom_text(aes(label=np),hjust=0, vjust=0)
 
+# Ahora, en lugar de usar la cantidad de puntos como etiquetas, 
+# usemos el tamaño de los puntos para representar la cantidad
+ggplot(data = exp.variogram, mapping = aes(x=dist,y=gamma)) +
+    geom_point(aes(size=np), color="blue", alpha=3/4)
+
 # Variograma empírico. ¿Qué modelos podemos ajustar?
-print(show.vgms())
+show.vgms()
 
-# Ajuste de variograma
+
+# Primero creamos un variograma arbitrario y obtenemos
+# sus valores para poder graficarlo
 vm <- vgm(psill = 0.13, model = "Sph", range = 850, nugget = 0.01)
-ggplot(data = v, mapping = aes(x=dist,y=gamma)) +
-    geom_point() +
-    geom_text(aes(label=np),hjust=0, vjust=0) +
-    geom_line(data=)
+max.dist <- max(exp.variogram$dist)
+vm.line <- variogramLine(vm, max.dist, n = 200, min =  1.0e-6 * max.dist,
+                         dir = c(1,0,0), covariance = FALSE) 
+ggplot(data = vm.line, mapping = aes(x=dist,y=gamma)) +
+    geom_line() +
+    geom_point(data = exp.variogram, mapping = aes(x=dist, y=gamma, size = np))
 
+# Ahora vamos a ajustar un variograma esférico
+fitted.vm <- fit.variogram(exp.variogram, vm) #ajuste asistido
 
-ggplot(vm,aes(x=dist,y=gamma)) + geom_point()
+#print(plot(exp.variogram, pl=T, model=fitted.vm))
+fitted.vm.line <- variogramLine(fitted.vm, max.dist, n = 200, min =  1.0e-6 * max.dist,
+                         dir = c(1,0,0), covariance = FALSE) 
+ggplot(data = fitted.vm.line, mapping = aes(x=dist,y=gamma)) +
+    geom_line() +
+    geom_point(data = exp.variogram, mapping = aes(x=dist, y=gamma, size = np))
 
-plot(v, pl=T, model=vm) #ajuste a ojo
-vmf<- fit.variogram(v,vm) #ajuste asistido
-vm
-vmf
-print(plot(v,pl=T,model=vmf))
 
 #carga de malla regular de 40x40 m.
 data("meuse.grid")

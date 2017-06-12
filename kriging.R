@@ -3,30 +3,45 @@ library(sp)
 library(gstat)
 library(ggplot2)
 
-##Carga y exploración de datos
+## Carga y exploración de datos
 ?meuse
 data("meuse")
 class(meuse)
 str(meuse)
 meuse$logZn <- log10(meuse$zinc)
 View(meuse)
-##Conversión a datos espaciales
+## Conversión a datos espaciales
 coordinates(meuse)<-c("x","y")
 class(meuse)
 str(meuse)
 
 # mapeo de datos, primero sólo los puntos
-ggplot(data=mapdata,aes(x, y)) + geom_point(color="blue", alpha=3/4)  
-    +  coord_equal() + theme_bw()
+# Para graficar con ggplot, necesitamos regresar los datos a un data.frame
+mapdata <- data.frame(meuse)
+ggplot(data=mapdata) + geom_point(aes(x,y), color="blue", alpha=3/4)  +
+   coord_equal() + theme_bw()
 
-# Luego los puntos pero variando el tamaño de acuerdo a la cantidad de Zinc
-ggplot(data=mapdata,aes(x, y)) + geom_point(aes(size=4*zinc/max(zinc)), color="blue", alpha=3/4) +
+# Luego los puntos pero variando el tamaño de acuerdo a la proporción de Zinc
+# con respecto al máximo
+ggplot(data=mapdata, aes(x,y)) +
+   geom_point(aes(size=4*zinc/max(zinc)), color="blue", alpha=3/4) +
    ggtitle("Zinc Concentration (ppm)") + coord_equal() + theme_bw()
 
+# Ahora vamos a incluir los ríos en la gráfica, primero leemos los datos
 data("meuse.riv")
-lines(meuse.riv)
-plot(meuse,asp=1,cex=4*meuse$zinc / max(meuse$zinc), pch=1)
-lines(meuse.riv)
+# ¿De qué clase son?
+class(meuse.riv)
+
+# Como ggplot sólo sabe trabajar sobre DataFrames, los convertimos: 
+meuse.riv.df <- data.frame(meuse.riv)
+
+# Ahora sí podemos graficarlo usando geom_path
+# (para unir los puntos en el orden en el que están)
+ggplot(data=mapdata,aes(x, y)) +
+    geom_point(aes(size=4*zinc/max(zinc)), color="blue", alpha=3/4) +
+    geom_path(data=meuse.riv.df, aes(x=X1,y=X2)) +
+    ggtitle("Zinc Concentration (ppm)") + coord_equal() + theme_bw()
+
 
 #dependencia espacial, distancia entre puntos
 n <- length(meuse$logZn)

@@ -43,25 +43,38 @@ ggplot(data=mapdata,aes(x, y)) +
     ggtitle("Zinc Concentration (ppm)") + coord_equal() + theme_bw()
 
 
-#dependencia espacial, distancia entre puntos
+# dependencia espacial, distancia entre puntos
 n <- length(meuse$logZn)
 n*(n-1)/2
 dim(coordinates(meuse))
 coordinates(meuse)[1,]
 coordinates(meuse)[2,]
-sep<-dist(coordinates(meuse)[1:2,]) #calcula distancia entre los primeros 2 elementos de meuse
+# calcula distancia entre los primeros 2 elementos de meuse
+sep <- dist(coordinates(meuse)[1:2,]) 
 sep
 gamma
 
 #cálculo y gráfica de variograma experimental
-v<-variogram(logZn~1, meuse, cutoff=1300, width=90)
-v
-print(plot(v,plot.numbers=T))
-#variograma empírico
+exp.variogram <- variogram(logZn~1, meuse, cutoff=1300, width=90)
+View(exp.variogram)
+ggplot(data = exp.variogram, mapping = aes(x=dist,y=gamma)) +
+    geom_point() +
+    geom_text(aes(label=np),hjust=0, vjust=0)
+
+# Variograma empírico. ¿Qué modelos podemos ajustar?
 print(show.vgms())
-#ajuste de variograma
+
+# Ajuste de variograma
 vm <- vgm(psill = 0.13, model = "Sph", range = 850, nugget = 0.01)
-print(plot(v, pl=T, model=vm)) #ajuste a ojo
+ggplot(data = v, mapping = aes(x=dist,y=gamma)) +
+    geom_point() +
+    geom_text(aes(label=np),hjust=0, vjust=0) +
+    geom_line(data=)
+
+
+ggplot(vm,aes(x=dist,y=gamma)) + geom_point()
+
+plot(v, pl=T, model=vm) #ajuste a ojo
 vmf<- fit.variogram(v,vm) #ajuste asistido
 vm
 vmf

@@ -1,31 +1,50 @@
-# tutorial-kriging
-Tutorial de Kriging
+# Tutorial de Kriging usando R
 
-* una cosa
-* otra
-* otra más
+En este taller vamos a usar el paquete [gstats](https://cran.r-project.org/web/packages/gstat/index.html) para interpolar
+datos espaciales (georreferenciados) usando el método [Kriging](https://en.wikipedia.org/wiki/Kriging).
 
-Puedes poner *cursivas* o **negritas**
+Antes de comenzar, necesitamos cargar (o instalar primero, en caso de que no estén
+ya instaladas) las librerías que vamos a usar:
 
-Pero sobre todo puedes poner código:
+```` R
+library(sp)
+library(gstat)
+library(ggplot2)
+````
 
 ## Parte 1 Leer datos
 
-```` R
-print("Reading data")
-tuits <- read.csv(data_file, stringsAsFactors = FALSE)
-print("Parsing dates")
-tuits$Fecha_tweet <- parLapply(cl,tuits$Fecha_tweet, ftime)
-tuits$Fecha_tweet <- as.POSIXct(strptime(tuits$Fecha_tweet,
-                                         "%Y-%m-%d %H.%M.%OS"),
-                                format="%Y-%m-%d %H.%M.%OS")
-names(tuits)[names(tuits) == 'Fecha_tweet'] <- 'tstamp'
-tuits$fecha <- as.Date(tuits$tstamp)
-print("Classifying languages")
-tuits$lang <- parLapply(cl,tuits$Texto,parseDetectLanguage)
-tuits$lang <- as.character(tuits$lang)
+Lo primero que vamos a hacer es leer los datos que vamos a interpolar, 
+para eso vamos a usar el _dataset_ `meuse`
+que forma parte del paquete gstats. Entonces, en la consola de R, 
+lo único que tenemos que hacer es llamar a los datos:
 
+```` R
+?meuse
+data("meuse")
+class(meuse)
+str(meuse)
 ````
+Antes de continuar, vamos a calcular una columna con el Logaritmo 
+de la cantidad de Zinc. Esto es una práctica común, para ampliar el rango de 
+variación de los datos:
+
+```` R
+meuse$logZn <- log10(meuse$zinc)
+View(meuse)
+````
+
+
+Como se puede ver, tenemos un `DataFrame` con mediciones de algunas variables para 
+un conjunto de muestras. Lo primero que vamos a hacer es convertirlo en un
+[SpatialPointsDataFrame](https://www.rdocumentation.org/packages/sp/versions/1.2-4/topics/SpatialPointsDataFrame-class) para poder trabajar con las coordenadas de los puntos
+
+```` R
+coordinates(meuse)<-c("x","y")
+class(meuse)
+str(meuse)
+````
+
 
 ## Parte 2 Graficar
 

@@ -121,13 +121,17 @@ spplot(predicted, "var1.var",col.regions = cm.colors(64),
 
 # Ahora, para comparar la distribución que obtuvimos con los datos originales,
 # podemos graficar también los puntos originales en cualquiera de las 
-# dos gráficas anteriores:
+# dos gráficas anteriores, primero con los valores:
 pts.s <- list("sp.points", meuse, col="white", pch=1,
               cex=4*meuse$zinc/max(meuse$zinc))
 spplot(predicted, "var1.pred", asp=1, col.regions=bpy.colors(64),
-       main = "KO predicción", sp.layout=list(pts.s))              
-pts<-list("sp.points", meuse, col="black", pch=20)
-print(spplot(k40, "var1.var",col.regions=cm.colors(64), asp=1,main="KO varianza de la predicción, log-ppm Zn^2",sp.layout=list(pts))) 
+       main = "KO predicción", sp.layout=list(pts.s))
+
+# Y ahora con las varianzas:
+pts <- list("sp.points", meuse, col="black", pch=20)
+print(spplot(predicted, "var1.var", col.regions=cm.colors(64),
+             asp=1,main="KO varianza de la predicción, log-ppm Zn^2",
+             sp.layout=list(pts))) 
 
 #validación cruzada LOCCV
 kcv.ok<- krige.cv(logZn~1, locations = meuse, model=vmf)

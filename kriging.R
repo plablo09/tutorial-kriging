@@ -91,22 +91,41 @@ ggplot(data = fitted.vm.line, mapping = aes(x=dist,y=gamma)) +
     geom_point(data = exp.variogram, mapping = aes(x=dist, y=gamma, size = np))
 
 
-#carga de malla regular de 40x40 m.
+
+# Ya con el modelo ajustado, podemos hacer predicciones.
+# El método krige sirve para calcular los valores en lugares
+# donde no se muestreo, usando el modelo que ajustamos.
+# Lo primero que vamos a hacer es usar una malla regular que representa
+# los lugares en donde queremos calcular las concentraciones de Zinc:
+
 data("meuse.grid")
 coordinates(meuse.grid)<- c("x","y")
 str(meuse.grid)
 gridded(meuse.grid) <- T #especifíca que es una malla regular
 
-#cálculo de KO sobre la malla regular
-k40<- krige(logZn~1, locations = meuse, newdata =meuse.grid, model =vmf)
-str(k40)
-#despliegue del mapa de los valores predichos
-print(spplot(k40,"var1.pred",asp=1,col.regions=bpy.colors(64),main="KO predicción,log-ppm Zn"))
-#mapa de las varianza de las predicciones
-print(spplot(k40, "var1.var",col.regions=cm.colors(64), asp=1,main="KO varianza de la predicción, log-ppm Zn^2")) 
-#mapa con el tamaño de los círculos
-pts.s <- list("sp.points", meuse, col="white", pch=1, cex=4*meuse$zinc/max(meuse$zinc))
-print(spplot(k40,"var1.pred",asp=1, col.regions=bpy.colors(64), main= "KO predicción", sp.layout=list(pts.s)))              
+
+predicted <- krige(logZn~1, locations = meuse, newdata = meuse.grid, model = fitted.vm)
+str(predicted)
+
+# Graficamos los valores que acabamos de predecir ()
+# (noten que, como usamos una malla regular, la predicción se parece a una imagen)
+# Para graficar datos en mallas regulares con atributos, usamos spplot
+spplot(predicted, "var1.pred", asp=1, col.regions = bpy.colors(64),
+       main = "KO predicción,log-ppm Zn")
+
+# Una de las ventajas de usar Kriging es que nos da una estimación de
+# la varianza de las predicciones. Grafiquémosla
+
+spplot(predicted, "var1.var",col.regions = cm.colors(64),
+       asp = 1,main = "KO varianza de la predicción, log-ppm Zn^2")
+
+# Ahora, para comparar la distribución que obtuvimos con los datos originales,
+# podemos graficar también los puntos originales en cualquiera de las 
+# dos gráficas anteriores:
+pts.s <- list("sp.points", meuse, col="white", pch=1,
+              cex=4*meuse$zinc/max(meuse$zinc))
+spplot(predicted, "var1.pred", asp=1, col.regions=bpy.colors(64),
+       main = "KO predicción", sp.layout=list(pts.s))              
 pts<-list("sp.points", meuse, col="black", pch=20)
 print(spplot(k40, "var1.var",col.regions=cm.colors(64), asp=1,main="KO varianza de la predicción, log-ppm Zn^2",sp.layout=list(pts))) 
 

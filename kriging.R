@@ -134,7 +134,7 @@ print(spplot(predicted, "var1.var", col.regions=cm.colors(64),
              sp.layout=list(pts))) 
 
 #validación cruzada LOCCV
-kcv.ok<- krige.cv(logZn~1, locations = meuse, model=vmf)
+kcv.ok<- krige.cv(logZn~1, locations = meuse, model=fitted.vm)
 summary (kcv.ok)
 summary(kcv.ok$residual)
 #medida dek RMSE

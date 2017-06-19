@@ -170,3 +170,67 @@ ggplot(data = exp.variogram, mapping = aes(x=dist,y=gamma)) +
 
 
 ## Parte 3 Semivariograma
+
+El variograma expermental que calculamos en la sección anterior contiene información
+sobre la dependencia espacial de nuestros datos, sin embargo, para poder interpolar, 
+necesitamos calcular la variable de interés en lugares en donde no se muestreo. En 
+términos del variograma, esto quiere decir que necesitamos calcular _gamma_ en 
+distancias arbitrarias.
+
+Para esto, lo que vamos a hacer es ajustar el variograma experimental a uno teórico. 
+Es importante notar que, normalmente no hay ninguna razón fundamental para utilizar
+algún modelo específico, normalmente son la experiencia del analista y los parámetros
+de bondad de ajuste los que ayudan a determinar el mejor modelo.
+
+El paquete gstat ofrece vario modelos de variogramas que podemos usar, el 
+siguiente comando nos muestra los modelos disponibles:
+
+```` R
+show.vgms()
+
+````
+
+#### Ajuste de variogramas
+
+Por lo pronto, para entender el procedimiento, seleccionemos un modelo de 
+variograma _esférico_ para ajustar a nuestros datos. Los parámetros que nos permiten
+ajustar los odelos teóricos a nuestros datos experimentales son escencialmente 2.
+
+1. **Range** El valor de distancia a partir del cual ya no se observa dependencia 
+espacial, es decir, _gamma_ es estable
+2. **Nugget** El desplazamiento del cero al inicio del variograma.
+
+Vamos a crear un variograma con estos valores estimados _a ojo_ a partir del 
+variograma experimental que calculamos arriba:
+
+```` R
+vm <- vgm(psill = 0.13, model = "Sph", range = 850, nugget = 0.01)
+max.dist <- max(exp.variogram$dist)
+vm.line <- variogramLine(vm, max.dist, n = 200, min =  1.0e-6 * max.dist,
+                         dir = c(1,0,0), covariance = FALSE) 
+ggplot(data = vm.line, mapping = aes(x=dist,y=gamma)) +
+    geom_line() +
+    geom_point(data = exp.variogram, mapping = aes(x=dist, y=gamma, size = np))
+````
+
+Esta forma de ajustar _a ojo_ el variograma, además de ser ineficiente, tiene el 
+problema de no ser _reproducible y trazable_, es decir, otros analistas segúramente 
+obtendrían resultados diferentes y no habría seguridad sobre el método que se siguió.
+Para resolver este problema, gstat ofrece una herramienta para ajustar un modelo
+teórico a la distribución de nuestrs datos:
+
+```` R
+fitted.vm <- fit.variogram(exp.variogram, vm)
+
+````
+
+Ahora lo podemos graficar para ver el resultado del ajuste:
+
+```` R
+fitted.vm.line <- variogramLine(fitted.vm, max.dist, n = 200, min =  1.0e-6 * max.dist,
+                         dir = c(1,0,0), covariance = FALSE) 
+ggplot(data = fitted.vm.line, mapping = aes(x=dist,y=gamma)) +
+    geom_line() +
+    geom_point(data = exp.variogram, mapping = aes(x=dist, y=gamma, size = np))
+
+````

@@ -39,7 +39,7 @@ str(meuse)
 
 
 Antes de continuar, vamos a calcular una columna con el Logaritmo 
-de la cantidad de Zinc. Esto es una práctica común, para ampliar el rango de 
+de la cantidad de Zinc. Esto es una práctica común para ampliar el rango de 
 variación de los datos:
 
 ```` R
@@ -61,7 +61,7 @@ ggplot(data=mapdata) + geom_point(aes(x,y), color="blue", alpha=3/4)  +
    coord_equal() + theme_bw()
 ````
 
-La primera linea, simplemente cambia el tipo de datos a DataFrame y lo guarda
+La primera linea simplemente cambia el tipo de datos a DataFrame y lo guarda
 en una variable. La segunda línea crea la gráfica. 
 
 ### Un breve recordatorio de ggplot
@@ -71,7 +71,7 @@ de _describir_ las gráficas. Crear una gráfica involucra los siguientes pasos:
 
 1. Instanciar un objeto de ggplot: `ggplot(data = mis.datos)`
 2. Definir un tipo de geometría `geom_point()`
-3. Definir un _mapeo estético_ que es la forma en la que nuestros datos definen 
+3. Definir un _mapeo estético_, que es la manera en la que nuestros datos definen 
 la forma en la que se ve la gráfica: `geom_point(aes(x,y))`
 4. Agregar cosas como título, colores, etcétera
 
@@ -93,7 +93,7 @@ Grafica los mismos puntos pero usa otra variable para modificar el tamaño
 **Súper extra** ¿Podrías cambiar el color, en función de una
 variable, en lugar de el tamaño de los puntos
 
-Ahora, vamos a incluir más cosas en nuestra gráfica. Dentro de los datos de `meuse`
+Ahora vamos a incluir más cosas en nuestra gráfica. Dentro de los datos de `meuse`
 también tenemos el contorno de un rio que pasa por la zona de muestreo:
 
 ```` R
@@ -141,7 +141,7 @@ una medida de cómo varia un campo como función de la distancia entre medicione
 ````
 
 En otras palabras estamos midiendo la varianza de las mediciones en diferentes 
-rangos de distancia. La librería gstat nos da métodos para calcular el variograma 
+rangos de distancia. La librería `gstat` nos da métodos para calcular el variograma 
 de una distribución, pero lo que hace por debajo es relativamente simple: 
 calcular las distancias entre pares de muestras y agruparlas en rangos, 
 después calcular la varianza en estos rangos. Vamos ahora a calcular (y graficar) el 
@@ -160,8 +160,8 @@ ancho de los intervalos en los que vamos a agrupar las mediciones, respectivamen
 
 **Nota:** Fíjense cómo estamos usando geom_text para poner las etiquetas a los puntos
 
-Ahora, también podemos, en lugar de etiquetar los puntos con la cantidad de muestras,
-variar el tamaño9 de los puntos:
+También podemos, en lugar de etiquetar los puntos con la cantidad de muestras,
+variar el tamaño de los puntos:
 
 ```` R
 ggplot(data = exp.variogram, mapping = aes(x=dist,y=gamma)) +
@@ -169,20 +169,20 @@ ggplot(data = exp.variogram, mapping = aes(x=dist,y=gamma)) +
 ````
 
 
-## Parte 3 Semivariograma
+## Parte 4. Variogramas teóricos
 
-El variograma expermental que calculamos en la sección anterior contiene información
+El variograma experimental que calculamos en la sección anterior contiene información
 sobre la dependencia espacial de nuestros datos, sin embargo, para poder interpolar, 
 necesitamos calcular la variable de interés en lugares en donde no se muestreo. En 
 términos del variograma, esto quiere decir que necesitamos calcular _gamma_ en 
 distancias arbitrarias.
 
 Para esto, lo que vamos a hacer es ajustar el variograma experimental a uno teórico. 
-Es importante notar que, normalmente no hay ninguna razón fundamental para utilizar
-algún modelo específico, normalmente son la experiencia del analista y los parámetros
+Es importante notar que normalmente no hay ninguna razón fundamental para utilizar
+algún modelo específico, son la experiencia del analista y los parámetros
 de bondad de ajuste los que ayudan a determinar el mejor modelo.
 
-El paquete gstat ofrece vario modelos de variogramas que podemos usar, el 
+El paquete `gstat` ofrece varios modelos de variogramas que podemos usar, el 
 siguiente comando nos muestra los modelos disponibles:
 
 ```` R
@@ -194,11 +194,11 @@ show.vgms()
 
 Por lo pronto, para entender el procedimiento, seleccionemos un modelo de 
 variograma _esférico_ para ajustar a nuestros datos. Los parámetros que nos permiten
-ajustar los odelos teóricos a nuestros datos experimentales son escencialmente 2.
+ajustar los modelos teóricos a nuestros datos experimentales son escencialmente 2.
 
 1. **Range** El valor de distancia a partir del cual ya no se observa dependencia 
 espacial, es decir, _gamma_ es estable
-2. **Nugget** El desplazamiento del cero al inicio del variograma.
+2. **Sill** El valor de _gamma_ cuando la distancia es mayor que el rango.
 
 Vamos a crear un variograma con estos valores estimados _a ojo_ a partir del 
 variograma experimental que calculamos arriba:
@@ -216,8 +216,8 @@ ggplot(data = vm.line, mapping = aes(x=dist,y=gamma)) +
 Esta forma de ajustar _a ojo_ el variograma, además de ser ineficiente, tiene el 
 problema de no ser _reproducible y trazable_, es decir, otros analistas segúramente 
 obtendrían resultados diferentes y no habría seguridad sobre el método que se siguió.
-Para resolver este problema, gstat ofrece una herramienta para ajustar un modelo
-teórico a la distribución de nuestrs datos:
+Para resolver este problema, `gstat` ofrece una herramienta para ajustar un modelo
+teórico a la distribución de nuestros datos:
 
 ```` R
 fitted.vm <- fit.variogram(exp.variogram, vm)
@@ -228,9 +228,145 @@ Ahora lo podemos graficar para ver el resultado del ajuste:
 
 ```` R
 fitted.vm.line <- variogramLine(fitted.vm, max.dist, n = 200, min =  1.0e-6 * max.dist,
-                         dir = c(1,0,0), covariance = FALSE) 
+                                dir = c(1,0,0), covariance = FALSE) 
 ggplot(data = fitted.vm.line, mapping = aes(x=dist,y=gamma)) +
     geom_line() +
     geom_point(data = exp.variogram, mapping = aes(x=dist, y=gamma, size = np))
 
 ````
+
+Y además, nos provee una medida del error del ajuste a través del Error Estandarizado,
+es decir, el RMS pero pesado por la cantidad de puntos en cada intervalo:
+
+```` R
+attr(fitted.vm, "SSErr")
+
+````
+
+### Ejercicio
+
+Prueben ajustar diferentes modelos de variogramas
+
+## Parte 5. Interpolando
+
+Ahora ya tenemos un variograma ajustado a nuestros datos, entonces ya podemos predecir
+el valor en los lugares en donde no se muestreó. Para interpolar los datos, primero
+vamos a emplear una malla regular para representar los lugares en donde queremos 
+calcular las concentraciones de Zinc. Los datos de meuse, ya vienen con una malla
+regular que podemos usar:
+
+```` R
+data("meuse.grid")
+coordinates(meuse.grid)<- c("x","y")
+str(meuse.grid)
+gridded(meuse.grid) <- T #especifíca que es una malla regular
+````
+
+Ahora sí, usemos el método `krige`, con el variograma teórico que ajustamos, para
+calcular los valores en todos los puntos de la malla:
+
+```` R
+predicted <- krige(logZn~1, locations = meuse, newdata = meuse.grid, model = fitted.vm)
+str(predicted)
+
+````
+Como pueden ver, en la variable `predicted`, tenemos los valores estimados con nuestro
+variograma ajustado, para graficarlos usaremos la función 
+[spplot](https://www.rdocumentation.org/packages/sp/versions/1.2-4/topics/spplot)
+del paquete [sp](https://www.rdocumentation.org/packages/sp/versions/1.2-4), que
+permite visualizar mallas con atributos:
+
+```` R
+spplot(predicted, "var1.pred", asp=1, col.regions = bpy.colors(64),
+       main = "KO predicción,log-ppm Zn")
+````
+
+Ahora bien, como Kriging es un método estadístico, entonces, además de la predicción 
+de los valores, también nos ofrece una predicción de la varianza. Esta varianza no es 
+una medida del error de ajuste, eso lo veremos más adelante, sino más bien 
+el valor esperado de la varianza dado el modelo que utilizamos:
+
+```` R
+spplot(predicted, "var1.var",col.regions = cm.colors(64),
+       asp = 1,main = "KO varianza de la predicción, log-ppm Zn^2")
+
+````
+
+Para entender mejor esta última gráfica, vamos a poner también los puntos 
+con las mediciones. Para añadir los púntos en la gráfica de `spplot`, tenemos que 
+hacer una lista con los parámetros que queremos usar para graficar los puntos, 
+es decir, el tipo de objeto, los datos, el color y cómo queremos variar el tamaño:
+
+
+```` R
+pts.s <- list("sp.points", meuse, col="blue", pch=1,
+              cex=4*meuse$zinc/max(meuse$zinc))
+spplot(predicted, "var1.var", asp=1, col.regions=bpy.colors(64),
+       main = "KO predicción", sp.layout=list(pts.s))
+````
+
+Como pueden ver, la varianza, que es la estimación del modelo del error, refleja la 
+distribución espacial de los datos. De hecho, en realidad no es más que un mapa de la 
+distancia al punto de medición más cercano (escalado por la matriz de covarianza,
+pero esa es otra discusión).
+
+Finalmente, vamos a ver qué tanto la interpolación que calculamos refleja los datos
+que usamos. Para esto, vamos a hacer la misma gráfica que acabamos de ver, pero en 
+lugar de la varianza graficaremos los valores estimados:
+
+```` R
+pts.s <- list("sp.points", meuse, col="blue", pch=1,
+              cex=4*meuse$zinc/max(meuse$zinc))
+spplot(predicted, "var1.pred", asp=1, col.regions=bpy.colors(64),
+       main = "KO predicción", sp.layout=list(pts.s))
+````
+
+
+## Parte 6. Validación cruzada
+
+Como mencionamos en la sección anterior, la varianza calculada por Kriging es sólo una
+estimación del error de la interpolación. Para obtener una medida más representativa 
+del error de nuestra interpolación podemos utilizar la técnica conocida como 
+[Validación Cruzada](https://en.wikipedia.org/wiki/Cross-validation_(statistics)). 
+Esta técnica (o, mejor dicho, conjunto de técnicas), nos permite validar (medir el 
+error) de un modelo. En general, la idea es separar los datos en dos conjuntos: 
+uno de entrenamiento, con el que vamos a ajustar el modelo, y otro de validación,
+contra el que vamos a medir el error. Si repetimos este proceso con diferentes 
+particiones entrenamiento-validación, entonces podemos tener una buena estimación del 
+error.
+
+La librería `gstat` provee el método `krige.cv` para realizar una validación cruzada 
+de nuestro modelo ajustado. Por defecto, `krige.cv` usa la estrategia _leave one out_,
+es decir, ajusta el modelo para todas las observaciones menos una y compara la 
+estimación contra la medición que dejó fuera, este proceso se repite para cada
+observación, reportando una serie de métricas del error.
+
+```` R
+kcv.ok <- krige.cv(logZn~1, locations = meuse, model=fitted.vm)
+summary (kcv.ok)
+summary(kcv.ok$residual)
+
+````
+
+Los residuales son simplemente las diferencias entre los valores observados 
+contra los valores predichos, mientras que el z-score es el residual dividido 
+por la desviación estándar. Para tener una estimación global del error, podemos 
+calcular el RMS de los residuales:
+
+```` R
+rms.error <- sqrt(sum(kcv.ok$residual^2)/length(kcv.ok$residual))
+rms.error
+````
+
+Finalmente, podemos mapear los residuales (o los zscores):
+
+```` R
+bubble(kcv.ok, "residual", main = "log(zinc): LOO CV residuals")
+````
+
+### Ejercicio final: 
+
+Calculen el error (RMS), para los diferentes modelos de variogramas y obtengan
+gráficas de los residuales.
+
+¿Cuál es el mejor modelo?

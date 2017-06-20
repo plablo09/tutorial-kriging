@@ -140,12 +140,32 @@ una medida de cómo varia un campo como función de la distancia entre medicione
 2\gamma(x,y)=\text{var}\left(Z(x) - Z(y)\right) = E\left[((Z(x)-\mu(x))-(Z(y) - \mu(y)))^2\right].
 ````
 
-En otras palabras estamos midiendo la varianza de las mediciones en diferentes 
+En otras palabras, estamos midiendo la varianza de las mediciones en diferentes 
 rangos de distancia. La librería `gstat` nos da métodos para calcular el variograma 
 de una distribución, pero lo que hace por debajo es relativamente simple: 
 calcular las distancias entre pares de muestras y agruparlas en rangos, 
-después calcular la varianza en estos rangos. Vamos ahora a calcular (y graficar) el 
-variograma experimental de nuestros datos:
+después calcular la varianza en estos rangos. 
+
+Para calcular la distancia, recordemos que nuestros datos ya tienen referencia 
+espacial y podemos operar directamente sobre las coordenadas:
+
+```` R
+coordinates(meuse)[1,]
+
+````
+
+y pedir, por ejemplo, la distancia entre dos pares de coordenadas:
+
+```` R
+sep <- dist(coordinates(meuse)[1:2,]) 
+
+````
+
+de esta forma podemos calcular todas las n*(n-1)/2 distancias entre puntos y agrupar
+los valores de nuestra variable de interés de acuerdo a los rangos que establezcamos. 
+
+En lugar de hacer este procedimiento a mano, vamos ahora a calcular (y graficar) el 
+variograma experimental de nuestros datos usando `gstat`:
 
 ```` R
 exp.variogram <- variogram(logZn~1, meuse, cutoff=1300, width=90)
@@ -190,7 +210,7 @@ show.vgms()
 
 ````
 
-#### Ajuste de variogramas
+### Ajuste de variogramas
 
 Por lo pronto, para entender el procedimiento, seleccionemos un modelo de 
 variograma _esférico_ para ajustar a nuestros datos. Los parámetros que nos permiten
@@ -252,7 +272,7 @@ Prueben ajustar diferentes modelos de variogramas
 Ahora ya tenemos un variograma ajustado a nuestros datos, entonces ya podemos predecir
 el valor en los lugares en donde no se muestreó. Para interpolar los datos, primero
 vamos a emplear una malla regular para representar los lugares en donde queremos 
-calcular las concentraciones de Zinc. Los datos de meuse, ya vienen con una malla
+calcular las concentraciones de Zinc. Los datos de meuse ya vienen con una malla
 regular que podemos usar:
 
 ```` R

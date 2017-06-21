@@ -52,7 +52,7 @@ View(meuse)
 Una primera cosa que podemos hacer es graficar los datos. Para esto, 
 aunque existen librerías especializadas en datos geográficos, vamos a usar
 [ggplot](http://ggplot2.org/). El único problema es que ggplot no puede trabajar con 
-objetos del tipo `SpatialPointsDataframe`, entonces primero vamos atenemos que
+objetos del tipo `SpatialPointsDataframe`, entonces primero tenemos que
 _desempaquetar_ las coordenadas:
 
 ```` R
@@ -136,9 +136,7 @@ Para resolver estas preguntas vamos a usar los
 [variogramas](https://en.wikipedia.org/wiki/Variogram), que representan 
 una medida de cómo varia un campo como función de la distancia entre mediciones: 
 
-````math #variogram
-2\gamma(x,y)=\text{var}\left(Z(x) - Z(y)\right) = E\left[((Z(x)-\mu(x))-(Z(y) - \mu(y)))^2\right].
-````
+<a href="https://www.codecogs.com/eqnedit.php?latex=2\gamma(x,y)=\text{var}\left(Z(x)&space;-&space;Z(y)\right)&space;=&space;E\left[((Z(x)-\mu(x))-(Z(y)&space;-&space;\mu(y)))^2\right]." target="_blank"><img src="https://latex.codecogs.com/gif.latex?2\gamma(x,y)=\text{var}\left(Z(x)&space;-&space;Z(y)\right)&space;=&space;E\left[((Z(x)-\mu(x))-(Z(y)&space;-&space;\mu(y)))^2\right]." title="2\gamma(x,y)=\text{var}\left(Z(x) - Z(y)\right) = E\left[((Z(x)-\mu(x))-(Z(y) - \mu(y)))^2\right]." /></a>
 
 En otras palabras, estamos midiendo la varianza de las mediciones en diferentes 
 rangos de distancia. La librería `gstat` nos da métodos para calcular el variograma 

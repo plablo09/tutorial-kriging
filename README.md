@@ -94,7 +94,7 @@ Grafica los mismos puntos pero usa otra variable para modificar el tamaño
 variable, en lugar de el tamaño de los puntos
 
 Ahora vamos a incluir más cosas en nuestra gráfica. Dentro de los datos de `meuse`
-también tenemos el contorno de un rio que pasa por la zona de muestreo:
+también tenemos el contorno de un río que pasa por la zona de muestreo:
 
 ```` R
 data("meuse.riv")
@@ -110,7 +110,7 @@ meuse.riv.df <- data.frame(meuse.riv)
 View(meuse.riv.df)
 ````
 
-Como puedes ver es una lista de coordenadas que forman el contorno del rio. 
+Como puedes ver es una lista de coordenadas que forman el contorno del río. 
 Para poder visualizarlas, vamos a utilizar un nuevo tipo de geometría
 de ggplot: `geom_path`. Esta geometría une los puntos en la secuencia en la 
 que están ordenados.
@@ -152,6 +152,7 @@ coordinates(meuse)[1,]
 
 ````
 
+
 y pedir, por ejemplo, la distancia entre dos pares de coordenadas:
 
 ```` R
@@ -191,7 +192,7 @@ ggplot(data = exp.variogram, mapping = aes(x=dist,y=gamma)) +
 
 El variograma experimental que calculamos en la sección anterior contiene información
 sobre la dependencia espacial de nuestros datos, sin embargo, para poder interpolar, 
-necesitamos calcular la variable de interés en lugares en donde no se muestreo. En 
+necesitamos calcular la variable de interés en lugares en donde no se muestreó. En 
 términos del variograma, esto quiere decir que necesitamos calcular _gamma_ en 
 distancias arbitrarias.
 
@@ -301,7 +302,7 @@ spplot(predicted, "var1.pred", asp=1, col.regions = bpy.colors(64),
 
 Ahora bien, como Kriging es un método estadístico, entonces, además de la predicción 
 de los valores, también nos ofrece una predicción de la varianza. Esta varianza no es 
-una medida del error de ajuste, eso lo veremos más adelante, sino más bien 
+una medida del error de ajuste (eso lo veremos más adelante) sino más bien 
 el valor esperado de la varianza dado el modelo que utilizamos:
 
 ```` R
@@ -311,7 +312,7 @@ spplot(predicted, "var1.var",col.regions = cm.colors(64),
 ````
 
 Para entender mejor esta última gráfica, vamos a poner también los puntos 
-con las mediciones. Para añadir los púntos en la gráfica de `spplot`, tenemos que 
+con las mediciones. Para añadir los puntos en la gráfica de `spplot`, tenemos que 
 hacer una lista con los parámetros que queremos usar para graficar los puntos, 
 es decir, el tipo de objeto, los datos, el color y cómo queremos variar el tamaño:
 
